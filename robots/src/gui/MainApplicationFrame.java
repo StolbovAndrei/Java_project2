@@ -4,6 +4,8 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
@@ -39,7 +41,12 @@ public class MainApplicationFrame extends JFrame
     addWindow(gameWindow);
 
     setJMenuBar(generateMenuBar());
-    setDefaultCloseOperation(EXIT_ON_CLOSE);
+    setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+    addWindowListener(new WindowAdapter() {
+      public void windowClosing(WindowEvent e) {
+        exitApplication();
+      }
+    });
   }
 
   protected LogWindow createLogWindow()
@@ -79,7 +86,7 @@ public class MainApplicationFrame extends JFrame
         null,
         options,
         options[0]);
-    if (result == 0) { // "Да"
+    if (result == 0) {
       System.exit(0);
     }
   }
