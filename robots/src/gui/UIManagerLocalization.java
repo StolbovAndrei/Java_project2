@@ -54,6 +54,13 @@ public class UIManagerLocalization {
     UIManager.put("InternalFrame.moveButtonToolTip", "Переместить");
     UIManager.put("InternalFrame.sizeButtonToolTip", "Размер");
 
+    UIManager.put("InternalFrame.restoreButtonText", "Восстановить");
+    UIManager.put("InternalFrame.moveButtonText", "Переместить");
+    UIManager.put("InternalFrame.sizeButtonText", "Размер");
+    UIManager.put("InternalFrame.iconifyButtonText", "Свернуть");
+    UIManager.put("InternalFrame.maximizeButtonText", "Развернуть");
+    UIManager.put("InternalFrame.closeButtonText", "Закрыть");
+
     UIManager.put("ProgressMonitor.progressText", "Выполняется...");
   }
 }
