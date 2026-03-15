@@ -23,6 +23,8 @@ import log.Logger;
 public class MainApplicationFrame extends JFrame
 {
   private final JDesktopPane desktopPane = new JDesktopPane();
+  private LogWindow logWindow;
+  private GameWindow gameWindow;
 
   public MainApplicationFrame() {
     int inset = 50;
@@ -33,10 +35,10 @@ public class MainApplicationFrame extends JFrame
 
     setContentPane(desktopPane);
 
-    LogWindow logWindow = createLogWindow();
+    logWindow = createLogWindow();
     addWindow(logWindow);
 
-    GameWindow gameWindow = new GameWindow();
+    gameWindow = new GameWindow();
     gameWindow.setSize(400,  400);
     addWindow(gameWindow);
 
@@ -47,6 +49,8 @@ public class MainApplicationFrame extends JFrame
         exitApplication();
       }
     });
+
+    ConfigManager.loadWindowsState(this, logWindow, gameWindow);
   }
 
   protected LogWindow createLogWindow()
@@ -66,7 +70,6 @@ public class MainApplicationFrame extends JFrame
     frame.setVisible(true);
   }
 
-
   private JMenuItem createMenuItem(String text, int mnemonic, ActionListener listener)
   {
     JMenuItem item = new JMenuItem(text, mnemonic);
@@ -74,9 +77,10 @@ public class MainApplicationFrame extends JFrame
     return item;
   }
 
-
   private void exitApplication()
   {
+    ConfigManager.saveWindowsState(this, logWindow, gameWindow);
+
     Object[] options = {"Да", "Нет"};
     int result = JOptionPane.showOptionDialog(this,
         "Вы действительно хотите выйти?",
@@ -154,7 +158,6 @@ public class MainApplicationFrame extends JFrame
     catch (ClassNotFoundException | InstantiationException
            | IllegalAccessException | UnsupportedLookAndFeelException e)
     {
-      // just ignore
     }
   }
 }
