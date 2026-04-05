@@ -57,7 +57,7 @@ public class MainApplicationFrame extends JFrame
       }
     });
 
-    ConfigManager.loadWindowsState(this, logWindow, gameWindow);
+    ConfigManager.loadWindowsState(this, logWindow, gameWindow, coordinatesWindow);
   }
 
   protected LogWindow createLogWindow()
@@ -86,7 +86,7 @@ public class MainApplicationFrame extends JFrame
 
   private void exitApplication()
   {
-    ConfigManager.saveWindowsState(this, logWindow, gameWindow);
+    ConfigManager.saveWindowsState(this, logWindow, gameWindow, coordinatesWindow);
 
     Object[] options = {"Да", "Нет"};
     int result = JOptionPane.showOptionDialog(this,

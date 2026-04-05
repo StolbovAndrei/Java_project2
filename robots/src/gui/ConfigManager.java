@@ -8,7 +8,7 @@ import java.util.Properties;
 public class ConfigManager {
   private static final String CONFIG_FILE = System.getProperty("user.home") + File.separator + "robots_config.properties";
 
-  public static void saveWindowsState(JFrame mainFrame, JInternalFrame logWindow, JInternalFrame gameWindow) {
+  public static void saveWindowsState(JFrame mainFrame, JInternalFrame logWindow, JInternalFrame gameWindow, JInternalFrame coordinatesWindow) {
     Properties props = new Properties();
 
     props.setProperty("mainFrame.bounds", mainFrame.getBounds().x + "," + mainFrame.getBounds().y + "," +
@@ -17,6 +17,7 @@ public class ConfigManager {
 
     saveInternalFrameProps(props, logWindow, "logWindow");
     saveInternalFrameProps(props, gameWindow, "gameWindow");
+    saveInternalFrameProps(props, coordinatesWindow, "coordinatesWindow");
 
     try (OutputStream out = new FileOutputStream(CONFIG_FILE)) {
       props.store(out, "Robots Application Configuration");
@@ -25,7 +26,7 @@ public class ConfigManager {
     }
   }
 
-  public static void loadWindowsState(JFrame mainFrame, JInternalFrame logWindow, JInternalFrame gameWindow) {
+  public static void loadWindowsState(JFrame mainFrame, JInternalFrame logWindow, JInternalFrame gameWindow, JInternalFrame coordinatesWindow) {
     Properties props = new Properties();
     File file = new File(CONFIG_FILE);
     if (!file.exists()) {
@@ -61,6 +62,7 @@ public class ConfigManager {
 
     loadInternalFrameProps(props, logWindow, "logWindow");
     loadInternalFrameProps(props, gameWindow, "gameWindow");
+    loadInternalFrameProps(props, coordinatesWindow, "coordinatesWindow");
   }
 
   private static void saveInternalFrameProps(Properties props, JInternalFrame frame, String prefix) {
