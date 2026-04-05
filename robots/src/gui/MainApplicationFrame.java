@@ -25,6 +25,8 @@ public class MainApplicationFrame extends JFrame
   private final JDesktopPane desktopPane = new JDesktopPane();
   private LogWindow logWindow;
   private GameWindow gameWindow;
+  private RobotCoordinatesWindow coordinatesWindow;
+  private RobotModel robotModel;
 
   public MainApplicationFrame() {
     int inset = 50;
@@ -35,12 +37,17 @@ public class MainApplicationFrame extends JFrame
 
     setContentPane(desktopPane);
 
+    robotModel = new RobotModel();
+
     logWindow = createLogWindow();
     addWindow(logWindow);
 
-    gameWindow = new GameWindow();
+    gameWindow = new GameWindow(robotModel);
     gameWindow.setSize(400,  400);
     addWindow(gameWindow);
+
+    coordinatesWindow = new RobotCoordinatesWindow(robotModel);
+    addWindow(coordinatesWindow);
 
     setJMenuBar(generateMenuBar());
     setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
