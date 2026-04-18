@@ -134,24 +134,6 @@ public class MainApplicationFrame extends JFrame
 
     menuBar.add(lookAndFeelMenu);
 
-    JMenu testMenu = new JMenu("Тесты");
-    testMenu.setMnemonic(KeyEvent.VK_T);
-    testMenu.getAccessibleContext().setAccessibleDescription(
-        "Тестовые команды");
-
-    testMenu.add(createMenuItem("Сообщение в лог", KeyEvent.VK_S,
-        (event) -> Logger.debug("Новая строка")));
-
-    testMenu.add(createMenuItem("Тест локализации", KeyEvent.VK_L,
-        (event) -> {
-          JOptionPane.showConfirmDialog(MainApplicationFrame.this,
-              "Это тестовое сообщение",
-              "Заголовок",
-              JOptionPane.YES_NO_CANCEL_OPTION);
-        }));
-
-    menuBar.add(testMenu);
-
     return menuBar;
   }
 
