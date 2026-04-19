@@ -6,6 +6,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
@@ -28,6 +30,9 @@ public class MainApplicationFrame extends JFrame
   private RobotCoordinatesWindow coordinatesWindow;
   private RobotModel robotModel;
 
+  private final LanguageManager languageManager = new LanguageManager();
+  private ResourceBundle currentBundle;
+
   public MainApplicationFrame() {
     int inset = 50;
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -37,17 +42,23 @@ public class MainApplicationFrame extends JFrame
 
     setContentPane(desktopPane);
 
+    Locale.setDefault(new Locale("ru", "RU"));
+    currentBundle = ResourceBundle.getBundle("resources.ComponentsMenu_ru");
+
     robotModel = new RobotModel();
 
     logWindow = createLogWindow();
     addWindow(logWindow);
+    languageManager.registerComponent(logWindow);
 
     gameWindow = new GameWindow(robotModel);
     gameWindow.setSize(400,  400);
     addWindow(gameWindow);
+    languageManager.registerComponent(gameWindow);
 
     coordinatesWindow = new RobotCoordinatesWindow(robotModel);
     addWindow(coordinatesWindow);
+    languageManager.registerComponent(coordinatesWindow);
 
     setJMenuBar(generateMenuBar());
     setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -58,6 +69,8 @@ public class MainApplicationFrame extends JFrame
     });
 
     ConfigManager.loadWindowsState(this, logWindow, gameWindow, coordinatesWindow);
+
+    languageManager.switchLanguage(currentBundle, this);
   }
 
   protected LogWindow createLogWindow()
@@ -88,16 +101,12 @@ public class MainApplicationFrame extends JFrame
   {
     ConfigManager.saveWindowsState(this, logWindow, gameWindow, coordinatesWindow);
 
-    Object[] options = {"Да", "Нет"};
-    int result = JOptionPane.showOptionDialog(this,
-        "Вы действительно хотите выйти?",
-        "Подтверждение выхода",
+    int result = JOptionPane.showConfirmDialog(this,
+        currentBundle.getString("exitInDialog"),
+        currentBundle.getString("exitName"),
         JOptionPane.YES_NO_OPTION,
-        JOptionPane.QUESTION_MESSAGE,
-        null,
-        options,
-        options[0]);
-    if (result == 0) {
+        JOptionPane.QUESTION_MESSAGE);
+    if (result == JOptionPane.YES_OPTION) {
       System.exit(0);
     }
   }
@@ -106,35 +115,62 @@ public class MainApplicationFrame extends JFrame
   {
     JMenuBar menuBar = new JMenuBar();
 
-    JMenu fileMenu = new JMenu("Файл");
-    fileMenu.setMnemonic(KeyEvent.VK_F);
-    fileMenu.getAccessibleContext().setAccessibleDescription("Управление файлом");
+    LocalizedJMenu languageMenu = new LocalizedJMenu("language", currentBundle);
+    languageMenu.setMnemonic(KeyEvent.VK_L);
+    languageManager.registerComponent(languageMenu);
 
-    fileMenu.add(createMenuItem("Выход", KeyEvent.VK_Q,
-        (event) -> exitApplication()));
+    LocalizedJMenuItem russianItem = new LocalizedJMenuItem("russian", currentBundle);
+    russianItem.addActionListener(e -> switchLanguage(new Locale("ru", "RU"), "resources.ComponentsMenu_ru"));
+    languageManager.registerComponent(russianItem);
+    languageMenu.add(russianItem);
 
-    menuBar.add(fileMenu);
+    LocalizedJMenuItem englishItem = new LocalizedJMenuItem("english", currentBundle);
+    englishItem.addActionListener(e -> switchLanguage(new Locale("en", "US"), "resources.ComponentsMenu_en_US"));
+    languageManager.registerComponent(englishItem);
+    languageMenu.add(englishItem);
 
-    JMenu lookAndFeelMenu = new JMenu("Режим отображения");
+    menuBar.add(languageMenu);
+
+    LocalizedJMenu lookAndFeelMenu = new LocalizedJMenu("scheme", currentBundle);
     lookAndFeelMenu.setMnemonic(KeyEvent.VK_V);
-    lookAndFeelMenu.getAccessibleContext().setAccessibleDescription(
-        "Управление режимом отображения приложения");
+    languageManager.registerComponent(lookAndFeelMenu);
 
-    lookAndFeelMenu.add(createMenuItem("Системная схема", KeyEvent.VK_S,
-        (event) -> {
-          setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-          this.invalidate();
-        }));
+    LocalizedJMenuItem systemSchemeItem = new LocalizedJMenuItem("systemScheme", currentBundle);
+    systemSchemeItem.addActionListener(event -> setLookAndFeel(UIManager.getSystemLookAndFeelClassName()));
+    languageManager.registerComponent(systemSchemeItem);
+    lookAndFeelMenu.add(systemSchemeItem);
 
-    lookAndFeelMenu.add(createMenuItem("Универсальная схема", KeyEvent.VK_S,
-        (event) -> {
-          setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-          this.invalidate();
-        }));
+    LocalizedJMenuItem crossplatformSchemeItem = new LocalizedJMenuItem("crossplatformScheme", currentBundle);
+    crossplatformSchemeItem.addActionListener(event -> setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName()));
+    languageManager.registerComponent(crossplatformSchemeItem);
+    lookAndFeelMenu.add(crossplatformSchemeItem);
 
     menuBar.add(lookAndFeelMenu);
 
+    LocalizedJMenu testMenu = new LocalizedJMenu("tests", currentBundle);
+    testMenu.setMnemonic(KeyEvent.VK_T);
+    languageManager.registerComponent(testMenu);
+
+    LocalizedJMenuItem messageItem = new LocalizedJMenuItem("message", currentBundle);
+    messageItem.addActionListener(event -> Logger.debug(currentBundle.getString("messageInLog")));
+    languageManager.registerComponent(messageItem);
+    testMenu.add(messageItem);
+
+    menuBar.add(testMenu);
+
+    LocalizedJMenuItem exitItem = new LocalizedJMenuItem("exit", currentBundle);
+    exitItem.setMnemonic(KeyEvent.VK_Q);
+    exitItem.addActionListener(event -> exitApplication());
+    languageManager.registerComponent(exitItem);
+    menuBar.add(exitItem);
+
     return menuBar;
+  }
+
+  private void switchLanguage(Locale locale, String baseName)
+  {
+    currentBundle = ResourceBundle.getBundle(baseName, locale);
+    languageManager.switchLanguage(currentBundle, this);
   }
 
   private void setLookAndFeel(String className)
@@ -147,6 +183,7 @@ public class MainApplicationFrame extends JFrame
     catch (ClassNotFoundException | InstantiationException
            | IllegalAccessException | UnsupportedLookAndFeelException e)
     {
+      // ignore
     }
   }
 }

@@ -1,17 +1,18 @@
 package gui;
 
 import java.awt.BorderLayout;
+import java.util.ResourceBundle;
 
 import javax.swing.JInternalFrame;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
-public class RobotCoordinatesWindow extends JInternalFrame implements RobotModelListener {
+public class RobotCoordinatesWindow extends JInternalFrame implements RobotModelListener, LocalizableComponent {
   private final RobotModel m_model;
   private final JTextArea m_textArea;
 
   public RobotCoordinatesWindow(RobotModel model) {
-    super("Информация о роботе", true, true, true, true);
+    super("", true, true, true, true);
     m_model = model;
     m_model.addListener(this);
     m_textArea = new JTextArea();
@@ -53,5 +54,10 @@ public class RobotCoordinatesWindow extends JInternalFrame implements RobotModel
   @Override
   public void onModelUpdated() {
     SwingUtilities.invokeLater(this::updateInfoDisplay);
+  }
+
+  @Override
+  public void updateText(ResourceBundle rb) {
+    setTitle(rb.getString("coordinatesWindow"));
   }
 }
