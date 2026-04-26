@@ -1,5 +1,6 @@
 package gui;
 
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionListener;
@@ -12,9 +13,7 @@ import java.util.ResourceBundle;
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
-import javax.swing.JMenu;
 import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -32,6 +31,7 @@ public class MainApplicationFrame extends JFrame
 
   private final LanguageManager languageManager = new LanguageManager();
   private ResourceBundle currentBundle;
+  private JMenuBar menuBar;
 
   public MainApplicationFrame() {
     int inset = 50;
@@ -90,13 +90,6 @@ public class MainApplicationFrame extends JFrame
     frame.setVisible(true);
   }
 
-  private JMenuItem createMenuItem(String text, int mnemonic, ActionListener listener)
-  {
-    JMenuItem item = new JMenuItem(text, mnemonic);
-    item.addActionListener(listener);
-    return item;
-  }
-
   private void exitApplication()
   {
     ConfigManager.saveWindowsState(this, logWindow, gameWindow, coordinatesWindow);
@@ -113,58 +106,39 @@ public class MainApplicationFrame extends JFrame
 
   private JMenuBar generateMenuBar()
   {
-    JMenuBar menuBar = new JMenuBar();
+    menuBar = new JMenuBar();
 
-    LocalizedJMenu languageMenu = new LocalizedJMenu("language", currentBundle);
-    languageMenu.setMnemonic(KeyEvent.VK_L);
-    languageManager.registerComponent(languageMenu);
+    LocalizedJMenu languageMenu = addLocalizedMenu("language", KeyEvent.VK_L);
+    addLocalizedMenuItem("russian", e -> switchLanguage(new Locale("ru", "RU"), "resources.ComponentsMenu_ru"), languageMenu);
+    addLocalizedMenuItem("english", e -> switchLanguage(new Locale("en", "US"), "resources.ComponentsMenu_en_US"), languageMenu);
 
-    LocalizedJMenuItem russianItem = new LocalizedJMenuItem("russian", currentBundle);
-    russianItem.addActionListener(e -> switchLanguage(new Locale("ru", "RU"), "resources.ComponentsMenu_ru"));
-    languageManager.registerComponent(russianItem);
-    languageMenu.add(russianItem);
+    LocalizedJMenu lookAndFeelMenu = addLocalizedMenu("scheme", KeyEvent.VK_V);
+    addLocalizedMenuItem("systemScheme", event -> setLookAndFeel(UIManager.getSystemLookAndFeelClassName()), lookAndFeelMenu);
+    addLocalizedMenuItem("crossplatformScheme", event -> setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName()), lookAndFeelMenu);
 
-    LocalizedJMenuItem englishItem = new LocalizedJMenuItem("english", currentBundle);
-    englishItem.addActionListener(e -> switchLanguage(new Locale("en", "US"), "resources.ComponentsMenu_en_US"));
-    languageManager.registerComponent(englishItem);
-    languageMenu.add(englishItem);
+    LocalizedJMenu testMenu = addLocalizedMenu("tests", KeyEvent.VK_T);
+    addLocalizedMenuItem("message", event -> Logger.debug(currentBundle.getString("messageInLog")), testMenu);
 
-    menuBar.add(languageMenu);
-
-    LocalizedJMenu lookAndFeelMenu = new LocalizedJMenu("scheme", currentBundle);
-    lookAndFeelMenu.setMnemonic(KeyEvent.VK_V);
-    languageManager.registerComponent(lookAndFeelMenu);
-
-    LocalizedJMenuItem systemSchemeItem = new LocalizedJMenuItem("systemScheme", currentBundle);
-    systemSchemeItem.addActionListener(event -> setLookAndFeel(UIManager.getSystemLookAndFeelClassName()));
-    languageManager.registerComponent(systemSchemeItem);
-    lookAndFeelMenu.add(systemSchemeItem);
-
-    LocalizedJMenuItem crossplatformSchemeItem = new LocalizedJMenuItem("crossplatformScheme", currentBundle);
-    crossplatformSchemeItem.addActionListener(event -> setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName()));
-    languageManager.registerComponent(crossplatformSchemeItem);
-    lookAndFeelMenu.add(crossplatformSchemeItem);
-
-    menuBar.add(lookAndFeelMenu);
-
-    LocalizedJMenu testMenu = new LocalizedJMenu("tests", currentBundle);
-    testMenu.setMnemonic(KeyEvent.VK_T);
-    languageManager.registerComponent(testMenu);
-
-    LocalizedJMenuItem messageItem = new LocalizedJMenuItem("message", currentBundle);
-    messageItem.addActionListener(event -> Logger.debug(currentBundle.getString("messageInLog")));
-    languageManager.registerComponent(messageItem);
-    testMenu.add(messageItem);
-
-    menuBar.add(testMenu);
-
-    LocalizedJMenuItem exitItem = new LocalizedJMenuItem("exit", currentBundle);
+    LocalizedJMenuItem exitItem = addLocalizedMenuItem("exit", event -> exitApplication(), menuBar);
     exitItem.setMnemonic(KeyEvent.VK_Q);
-    exitItem.addActionListener(event -> exitApplication());
-    languageManager.registerComponent(exitItem);
-    menuBar.add(exitItem);
 
     return menuBar;
+  }
+
+  private LocalizedJMenu addLocalizedMenu(String key, int mnemonic) {
+    LocalizedJMenu menu = new LocalizedJMenu(key, currentBundle);
+    menu.setMnemonic(mnemonic);
+    languageManager.registerComponent(menu);
+    menuBar.add(menu);
+    return menu;
+  }
+
+  private LocalizedJMenuItem addLocalizedMenuItem(String key, ActionListener listener, Container parent) {
+    LocalizedJMenuItem item = new LocalizedJMenuItem(key, currentBundle);
+    item.addActionListener(listener);
+    languageManager.registerComponent(item);
+    parent.add(item);
+    return item;
   }
 
   private void switchLanguage(Locale locale, String baseName)
