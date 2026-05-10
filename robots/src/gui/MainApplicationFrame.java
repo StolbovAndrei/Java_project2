@@ -10,6 +10,8 @@ import java.awt.event.WindowEvent;
 import java.io.*;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -53,7 +55,7 @@ public class MainApplicationFrame extends JFrame {
     addWindow(gameWindow);
     languageManager.registerComponent(gameWindow);
 
-    coordinatesWindow = new RobotCoordinatesWindow(robotModel);
+    coordinatesWindow = new RobotCoordinatesWindow(robotModel, currentBundle);
     addWindow(coordinatesWindow);
     languageManager.registerComponent(coordinatesWindow);
 
@@ -108,7 +110,11 @@ public class MainApplicationFrame extends JFrame {
     addLocalizedMenuItem("crossplatformScheme", event -> setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName()), lookAndFeelMenu);
 
     LocalizedJMenu testMenu = addLocalizedMenu("tests", KeyEvent.VK_T);
-    addLocalizedMenuItem("message", event -> Logger.debug(currentBundle.getString("messageInLog")), testMenu);
+    addLocalizedMenuItem("message", event -> {
+      String time = new SimpleDateFormat("HH:mm:ss").format(new Date());
+      String formatted = MessageFormatCache.getFormatted(currentBundle, "messageInLog", time, "Test");
+      Logger.debug(formatted);
+    }, testMenu);
 
     LocalizedJMenu robotMenu = addLocalizedMenu("robotMenu", KeyEvent.VK_R);
     addLocalizedMenuItem("loadRobot", e -> loadRobotFromJar(), robotMenu);
