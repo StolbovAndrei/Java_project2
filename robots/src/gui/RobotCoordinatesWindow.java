@@ -10,10 +10,12 @@ import javax.swing.SwingUtilities;
 public class RobotCoordinatesWindow extends JInternalFrame implements RobotModelListener, LocalizableComponent {
   private final RobotModel m_model;
   private final JTextArea m_textArea;
+  private ResourceBundle currentBundle;
 
-  public RobotCoordinatesWindow(RobotModel model) {
+  public RobotCoordinatesWindow(RobotModel model, ResourceBundle bundle) {
     super("", true, true, true, true);
     m_model = model;
+    this.currentBundle = bundle;
     m_model.addListener(this);
     m_textArea = new JTextArea();
     m_textArea.setEditable(false);
@@ -29,18 +31,15 @@ public class RobotCoordinatesWindow extends JInternalFrame implements RobotModel
     double directionDeg = Math.toDegrees(m_model.getRobotDirection());
     int targetX = m_model.getTargetPositionX();
     int targetY = m_model.getTargetPositionY();
-
     double distance = Math.hypot(targetX - robotX, targetY - robotY);
     double angleToTargetDeg = Math.toDegrees(angleTo(robotX, robotY, targetX, targetY));
 
     String text =
-        "РОБОТ\n" +
-            "Позиция: X = " + String.format("%.1f", robotX) + ", Y = " + String.format("%.1f", robotY) + "\n" +
-            "Направление: " + String.format("%.1f", directionDeg) + "°\n\n" +
-            "ЦЕЛЬ\n" +
-            "Позиция: X = " + targetX + ", Y = " + targetY + "\n" +
-            "Расстояние до цели: " + String.format("%.1f", distance) + "\n" +
-            "Угол до цели: " + String.format("%.1f", angleToTargetDeg) + "°";
+        MessageFormatCache.getFormatted(currentBundle, "robotPosition", robotX, robotY) + "\n" +
+            MessageFormatCache.getFormatted(currentBundle, "robotDirection", directionDeg) + "\n\n" +
+            MessageFormatCache.getFormatted(currentBundle, "targetPosition", targetX, targetY) + "\n" +
+            MessageFormatCache.getFormatted(currentBundle, "distanceToTarget", distance) + "\n" +
+            MessageFormatCache.getFormatted(currentBundle, "angleToTarget", angleToTargetDeg);
 
     m_textArea.setText(text);
   }
@@ -58,6 +57,8 @@ public class RobotCoordinatesWindow extends JInternalFrame implements RobotModel
 
   @Override
   public void updateText(ResourceBundle rb) {
+    this.currentBundle = rb;
     setTitle(rb.getString("coordinatesWindow"));
+    updateInfoDisplay();
   }
 }
